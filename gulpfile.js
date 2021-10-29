@@ -1,6 +1,6 @@
 const { src, dest, parallel, series, watch } = require("gulp");
 const cleanCSS = require("gulp-clean-css");
-const sass = require("gulp-sass");
+const sass = require("gulp-sass")(require("sass"));
 const autoprefixer = require("gulp-autoprefixer");
 const fileInclude = require("gulp-file-include");
 const imagemin = require("gulp-imagemin");
@@ -118,7 +118,7 @@ const watchFiles = () => {
 
   watch("./src/scss/**", styles);
   watch("./src/*.html", htmlInclude);
-  watch(".src/fonts/**/*", fonts);
+  watch(".src/fonts/**/*", fonts); // doesn't move new added fonts
   watch(["./src/img/**/*", "!./src/img/svg/**"], images);
   watch("./src/js/**", scripts);
   watch("./src/img/svg-sprites/**.svg", svgSprites);
