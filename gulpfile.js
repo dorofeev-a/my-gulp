@@ -101,7 +101,7 @@ const htmlInclude = () => {
   return src(["./src/*.html"])
     .pipe(
       fileInclude({
-        prefix: "@",
+        prefix: "@@",
         basepath: "@file",
       })
     )
@@ -117,7 +117,7 @@ const watchFiles = () => {
   });
 
   watch("./src/scss/**", styles);
-  watch("./src/*.html", htmlInclude);
+  watch("./src/**/*.html", htmlInclude);
   watch(".src/fonts/**/*", fonts); // doesn't move new added fonts
   watch(["./src/img/**/*", "!./src/img/svg/**"], images);
   watch("./src/js/**", scripts);
