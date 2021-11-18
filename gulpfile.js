@@ -119,7 +119,7 @@ const watchFiles = () => {
   watch("./src/scss/**", styles);
   watch("./src/**/*.html", htmlInclude);
   watch(".src/fonts/**/*", fonts); // doesn't move new added fonts
-  watch(["./src/img/**/*", "!./src/img/svg/**"], images);
+  watch(["./src/img/**/*", "!./src/img/svg-sprites/**.svg"], images);
   watch("./src/js/**", scripts);
   watch("./src/img/svg-sprites/**.svg", svgSprites);
 };
