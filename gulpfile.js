@@ -23,22 +23,31 @@ const toProd = done => {
 };
 
 const clean = () => {
-  return del(["app/*"]);
+  return del(["app/**"]);
 };
 
 const styles = () => {
-  return src(["./src/scss/**/*.scss", "!src/scss/vendors/**"])
-    .pipe(gulpif(!isProd, sourcemaps.init()))
-    .pipe(sass().on("error", notify.onError()))
-    .pipe(
-      autoprefixer({
-        cascade: false,
-      })
-    )
-    .pipe(gulpif(isProd, cleanCSS({ level: 2 })))
-    .pipe(gulpif(!isProd, sourcemaps.write(".")))
-    .pipe(src("src/scss/vendors/**"))
-    .pipe(dest("app/css"))
+  return (
+    src(["./src/scss/**/*.scss", "!src/scss/vendors/**"])
+      .pipe(gulpif(!isProd, sourcemaps.init()))
+      .pipe(sass().on("error", notify.onError()))
+      .pipe(
+        autoprefixer({
+          cascade: false,
+        })
+      )
+      .pipe(gulpif(isProd, cleanCSS({ level: 2 })))
+      .pipe(gulpif(!isProd, sourcemaps.write(".")))
+      // Next pipe with vendors is making reload
+      // .pipe(src("src/scss/vendors/**"))
+      .pipe(dest("app/css"))
+      .pipe(browserSync.stream())
+  );
+};
+
+const vendors = () => {
+  return src(["src/scss/vendors/**"])
+    .pipe(dest("app/css/"))
     .pipe(browserSync.stream());
 };
 
@@ -61,7 +70,7 @@ const scripts = () => {
 
 const images = () => {
   return (
-    src(["./src/img/**/*", "!./src/img/svg-sprites/**.svg"])
+    src(["./src/img/**", "!./src/img/svg-sprites/**"])
       .pipe(newer("./app/img/"))
       // .pipe(gulpif(isProd, imagemin()))
       .pipe(imagemin())
@@ -70,7 +79,7 @@ const images = () => {
 };
 
 const svgSprites = () => {
-  return src("./src/img/svg-sprites/*.svg")
+  return src("./src/img/svg-sprites/**/*.svg")
     .pipe(
       svgSprite({
         mode: {
@@ -88,7 +97,9 @@ const svgSprites = () => {
 };
 
 const fonts = () => {
-  return src("./src/fonts/**/*").pipe(dest("./app/fonts/"));
+  return src("./src/fonts/**")
+    .pipe(dest("./app/fonts/"))
+    .pipe(browserSync.stream());
 };
 
 // const svgminify = done => {
@@ -118,10 +129,11 @@ const watchFiles = () => {
 
   watch("./src/scss/**", styles);
   watch("./src/**/*.html", htmlInclude);
-  watch(".src/fonts/**/*", fonts); // doesn't move new added fonts
-  watch(["./src/img/**/*", "!./src/img/svg-sprites/**.svg"], images);
-  watch("./src/js/**", scripts);
-  watch("./src/img/svg-sprites/**.svg", svgSprites);
+  watch("./src/fonts/**", fonts);
+  watch(["./src/img/**", "!./src/img/svg-sprites/**"], images);
+  watch("./src/js/**/*.js", scripts);
+  watch("./src/img/svg-sprites/**", svgSprites);
+  watch("./src/scss/vendors/**", vendors);
 };
 
 exports.default = series(
@@ -132,6 +144,7 @@ exports.default = series(
   svgSprites,
   scripts,
   fonts,
+  vendors,
   watchFiles
 );
 
@@ -143,5 +156,6 @@ exports.build = series(
   images,
   svgSprites,
   scripts,
+  vendors,
   fonts
 );
