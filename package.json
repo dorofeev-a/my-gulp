@@ -9,15 +9,19 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/plugin-proposal-decorators": "^7.16.4",
+    "@babel/plugin-transform-runtime": "^7.16.4",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/runtime": "^7.16.3",
+    "babel-loader": "^8.2.3",
     "browser-sync": "^2.27.6",
     "del": "^6.0.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
-    "gulp-babel": "^8.0.0",
     "gulp-clean-css": "^4.3.0",
-    "gulp-concat": "^2.6.1",
     "gulp-file-include": "^2.3.0",
     "gulp-if": "^3.0.0",
     "gulp-imagemin": "^7.1.0",
@@ -28,13 +32,17 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-svg-sprite": "^1.5.0",
     "gulp-svgmin": "^4.1.0",
-    "gulp-terser": "^2.1.0",
-    "optipng-bin": "^3.1.4", 
+    "optipng-bin": "^3.1.4",
     "postcss": "^8.3.11",
     "postcss-sorting": "^7.0.1",
-    "sass": "^1.43.4"
+    "sass": "^1.43.4",
+    "webpack": "^5.64.4",
+    "webpack-stream": "^7.0.0"
   },
   "version": "1.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "core-js": "^3.19.2"
+  },
   "description": ""
 }

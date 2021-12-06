@@ -1,0 +1,34 @@
+{
+  "sourceType": "unambiguous",
+  
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "debug": false,
+        "targets": {
+          
+          "ie": "11"
+        },
+        "useBuiltIns": "usage",
+        "corejs": {
+          "version": 3
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-proposal-decorators",
+      {
+        "decoratorsBeforeExport": true
+      }
+    ],
+    [
+      "@babel/plugin-proposal-class-properties"
+    ],
+    [
+      "@babel/transform-runtime"
+    ]
+  ]
+}

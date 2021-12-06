@@ -7,14 +7,12 @@ const imagemin = require("gulp-imagemin");
 const svgSprite = require("gulp-svg-sprite");
 const svgmin = require("gulp-svgmin");
 const newer = require("gulp-newer");
-const babel = require("gulp-babel");
-const terser = require("gulp-terser");
-const concat = require("gulp-concat");
 const sourcemaps = require("gulp-sourcemaps");
 const del = require("del");
 const gulpif = require("gulp-if");
 const notify = require("gulp-notify");
 const browserSync = require("browser-sync").create();
+const webpack = require("webpack-stream");
 
 let isProd = false;
 const toProd = done => {
@@ -22,48 +20,54 @@ const toProd = done => {
   done();
 };
 
+let webpackConfig = {
+  output: { filename: "bundle.js" },
+  mode: isProd ? "production" : "development",
+  target: "browserslist:browserslist config, not maintained node versions",
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        loader: "babel-loader",
+        exclude: ["/node_modules", /\bcore-js\b/, /\bwebpack\/buildin\b/],
+        options: {
+          presets: ["@babel/preset-env"],
+          plugins: ["@babel/plugin-transform-runtime"],
+        },
+      },
+    ],
+  },
+  devtool: "eval-source-map",
+};
+
 const clean = () => {
   return del(["app/**"]);
 };
 
 const styles = () => {
-  return (
-    src(["./src/scss/**/*.scss", "!src/scss/vendors/**"])
-      .pipe(gulpif(!isProd, sourcemaps.init()))
-      .pipe(sass().on("error", notify.onError()))
-      .pipe(
-        autoprefixer({
-          cascade: false,
-        })
-      )
-      .pipe(gulpif(isProd, cleanCSS({ level: 2 })))
-      .pipe(gulpif(!isProd, sourcemaps.write(".")))
-      // Next pipe with vendors is making reload
-      // .pipe(src("src/scss/vendors/**"))
-      .pipe(dest("app/css"))
-      .pipe(browserSync.stream())
-  );
-};
-
-const vendors = () => {
-  return src(["src/scss/vendors/**"])
-    .pipe(dest("app/css/"))
+  return src(["./src/scss/**/*.scss", "!src/scss/vendors/**"])
+    .pipe(gulpif(!isProd, sourcemaps.init()))
+    .pipe(sass().on("error", notify.onError()))
+    .pipe(
+      autoprefixer({
+        cascade: false,
+      })
+    )
+    .pipe(gulpif(isProd, cleanCSS({ level: 2 })))
+    .pipe(gulpif(!isProd, sourcemaps.write(".")))
+    .pipe(dest("app/css"))
     .pipe(browserSync.stream());
 };
 
-const scripts = () => {
-  return src(["src/js/**/*.js", "!src/js/vendors/**"])
-    .pipe(gulpif(!isProd, sourcemaps.init()))
-    .pipe(
-      babel({
-        presets: ["@babel/preset-env"],
-      })
-    )
-    .pipe(concat("app.min.js"))
-    .pipe(gulpif(isProd, terser()))
-    .pipe(gulpif(!isProd, sourcemaps.write(".")))
+const vendors = () => {
+  return src(["src/vendors/**"])
+    .pipe(dest("app/vendors/"))
+    .pipe(browserSync.stream());
+};
 
-    .pipe(src("src/js/vendors/**"))
+const gulpWebpack = () => {
+  return src("./src/js/script.js")
+    .pipe(webpack(webpackConfig))
     .pipe(dest("app/js/"))
     .pipe(browserSync.stream());
 };
@@ -131,9 +135,16 @@ const watchFiles = () => {
   watch("./src/**/*.html", htmlInclude);
   watch("./src/fonts/**", fonts);
   watch(["./src/img/**", "!./src/img/svg-sprites/**"], images);
-  watch("./src/js/**/*.js", scripts);
+  watch("./src/js/**/*.js", gulpWebpack);
   watch("./src/img/svg-sprites/**", svgSprites);
   watch("./src/scss/vendors/**", vendors);
+};
+
+// copy webfonts for FontAwesome into your source
+exports.copyFontAwesome = () => {
+  return src("node_modules/@fortawesome/fontawesome-free/webfonts/*").pipe(
+    dest("./src/fonts/webfonts/")
+  );
 };
 
 exports.default = series(
@@ -142,7 +153,7 @@ exports.default = series(
   styles,
   images,
   svgSprites,
-  scripts,
+  gulpWebpack,
   fonts,
   vendors,
   watchFiles
@@ -155,7 +166,7 @@ exports.build = series(
   styles,
   images,
   svgSprites,
-  scripts,
+  gulpWebpack,
   vendors,
   fonts
 );
